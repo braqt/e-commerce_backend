@@ -1,7 +1,7 @@
 export interface Product {
   name: string;
   description: string;
-  imageUrl: string;
+  imagesUrl: string[];
   category: string;
   price: string;
   discountPercentage: number;

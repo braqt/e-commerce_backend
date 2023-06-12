@@ -1,24 +1,48 @@
-import { UpdateQuery } from "mongoose";
+import { Request, Response } from "express";
+
 import { Product } from "../interfaces/Product";
 import ProductRepository from "../repositories/ProductRepository";
+import StaticFileServerService from "../services/StaticFileServerService";
 
 class ProductController {
-  productRepository: ProductRepository;
+  async createProduct(req: Request, res: Response) {
+    const { name, description, category, price, discountPercentage, quantity } =
+      req.body;
+    if (
+      name &&
+      description &&
+      category &&
+      price &&
+      discountPercentage &&
+      quantity
+    ) {
+      const files = req.files as Express.Multer.File[];
+      const staticFileServerService = new StaticFileServerService();
+      if (!files || files.length === 0) {
+        return res.status(400).json({ message: "No images received." });
+      }
 
-  constructor(productRepository: ProductRepository) {
-    this.productRepository = productRepository;
-  }
+      let imagesBuffer = files.map((file) => file.buffer);
+      let response = await staticFileServerService.uploadImages(imagesBuffer);
+      let imagesUrl = response.imagesUrl;
+      let finalPrice = (price - (price * discountPercentage) / 100).toString();
 
-  async getProduct(id: string) {
-    return this.productRepository.get(id);
-  }
+      let product: Product = {
+        name,
+        description,
+        imagesUrl,
+        category,
+        price,
+        discountPercentage: +discountPercentage,
+        quantity: +quantity,
+        finalPrice,
+      };
 
-  async createProduct(product: Product) {
-    return this.productRepository.create(product);
-  }
-
-  async updateProduct(id: string, query: UpdateQuery<Product>) {
-    return this.productRepository.update(id, query);
+      new ProductRepository().create(product);
+      res.sendStatus(200);
+    } else {
+      res.sendStatus(400);
+    }
   }
 }
 

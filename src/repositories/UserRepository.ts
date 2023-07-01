@@ -10,6 +10,19 @@ class UserRepository {
     return await UserModel.findOne({ firebaseAuthID: firebaseAuthID });
   }
 
+  async getUserByFirebaseAuthIDWithStatistics(firebaseAuthID: string) {
+    return await UserModel.findOne({ firebaseAuthID: firebaseAuthID });
+  }
+
+  async getUserByName(name: string) {
+    return await UserModel.findOne({
+      $or: [
+        { name: { $regex: name, $options: "i" } },
+        { lastName: { $regex: name, $options: "i" } },
+      ],
+    });
+  }
+
   async setUserAsAdmin(firebaseAuthID: string) {
     return await UserModel.findOneAndUpdate(
       { firebaseAuthID: firebaseAuthID },

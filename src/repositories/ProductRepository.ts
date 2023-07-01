@@ -1,5 +1,6 @@
 import ProductModel from "../models/product.model";
 import { Product } from "../interfaces/Product";
+import { FilterQuery } from "mongoose";
 
 class ProductRepository {
   async getProductById(id: string) {
@@ -19,6 +20,38 @@ class ProductRepository {
     } else {
       throw new Error("No product found with the _id: " + id);
     }
+  }
+
+  async getProducts(
+    pageNumber: number,
+    pageSize: number,
+    productName?: string,
+    category?: string
+  ) {
+    let query: FilterQuery<Product> = {};
+    if (productName) {
+      query["name"] = { $regex: ".*" + productName + ".*" };
+    }
+    if (category) {
+      query["category"] = category;
+    }
+    let products = await ProductModel.find(query)
+      .sort({ _id: -1 })
+      .skip(pageSize * (pageNumber - 1))
+      .limit(pageSize);
+
+    return products;
+  }
+
+  async getNumberOfProducts(productName?: string, category?: string) {
+    let query: FilterQuery<Product> = {};
+    if (productName) {
+      query["name"] = { $regex: ".*" + productName + ".*" };
+    }
+    if (category) {
+      query["category"] = category;
+    }
+    return await ProductModel.find(query).count();
   }
 }
 

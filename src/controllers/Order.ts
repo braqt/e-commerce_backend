@@ -24,71 +24,82 @@ class OrderController {
 
     if (products.length > 0 && paymentMethod) {
       const firebaseAuthID = req.authId;
-      const userDoc = await new UserRepository().getUserByFirebaseAuthID(
-        firebaseAuthID
-      );
-      if (userDoc) {
-        const orders = await new OrderRepository().getAllOrdersByCreationData();
-        let totalInCents = 0;
-        for (let product of products) {
-          try {
+      try {
+        const userDoc = await new UserRepository().getUserByFirebaseAuthID(
+          firebaseAuthID
+        );
+        if (userDoc) {
+          const orders =
+            await new OrderRepository().getAllOrdersByCreationData();
+          let totalInCents = 0;
+          for (let product of products) {
             const productRetrieved =
               await new ProductRepository().getProductById(product.id);
             if (productRetrieved) {
               totalInCents =
                 totalInCents +
                 productRetrieved.finalPriceInCents * product.quantity;
+            } else {
+              throw new Error("Product not found. id: " + product.id);
             }
-          } catch (e) {
-            res.status(500).send("One of the products was not found");
           }
-        }
 
-        const orderStateDoc =
-          await new OrderStateRepository().getOrderStateByName(
-            OrderStateValue.NOT_PREPARED
-          );
-        const paymentMethodDoc =
-          await new PaymentMethodRepository().getPaymentMethodByName(
-            stringToPaymentMethod(paymentMethod)
-          );
-        const paymentStateDoc =
-          await new PaymentStateRepository().getPaymentStateByName(
-            PaymentStateValue.WAITING_FOR_PAYMENT
-          );
+          const orderStateDoc =
+            await new OrderStateRepository().getOrderStateByName(
+              OrderStateValue.NOT_PREPARED
+            );
+          const paymentMethodDoc =
+            await new PaymentMethodRepository().getPaymentMethodByName(
+              stringToPaymentMethod(paymentMethod)
+            );
+          const paymentStateDoc =
+            await new PaymentStateRepository().getPaymentStateByName(
+              PaymentStateValue.WAITING_FOR_PAYMENT
+            );
 
-        let parsedProducts = [];
-        for (let product of products) {
-          parsedProducts.push({
-            id: new Types.ObjectId(product.id),
-            quantity: product.quantity,
-          });
-        }
-
-        if (orderStateDoc && paymentMethodDoc && paymentStateDoc) {
-          let order: Order = {
-            orderNumber: orders.length == 0 ? 1 : orders[0].orderNumber + 1,
-            totalInCents,
-            products: parsedProducts,
-            user: userDoc._id,
-            state: orderStateDoc._id,
-            paymentMethod: paymentMethodDoc._id,
-            paymentState: paymentStateDoc._id,
-          };
-          new OrderRepository().create(order);
+          let parsedProducts = [];
           for (let product of products) {
-            new ProductRepository().reduceQuantity(
-              product.id,
-              product.quantity
+            parsedProducts.push({
+              id: new Types.ObjectId(product.id),
+              quantity: product.quantity,
+            });
+          }
+
+          if (orderStateDoc && paymentMethodDoc && paymentStateDoc) {
+            let order: Order = {
+              orderNumber: orders.length == 0 ? 1 : orders[0].orderNumber + 1,
+              totalInCents,
+              products: parsedProducts,
+              user: userDoc._id,
+              state: orderStateDoc._id,
+              paymentMethod: paymentMethodDoc._id,
+              paymentState: paymentStateDoc._id,
+            };
+            new OrderRepository().create(order);
+            for (let product of products) {
+              new ProductRepository().reduceQuantity(
+                product.id,
+                product.quantity
+              );
+            }
+
+            res.sendStatus(200);
+          } else {
+            throw new Error(
+              "One or more docs werent found" +
+                "orderStateDoc: " +
+                orderStateDoc +
+                ". paymentMethodDoc: " +
+                paymentMethodDoc +
+                ". paymentStateDoc:" +
+                paymentStateDoc
             );
           }
-
-          res.sendStatus(200);
         } else {
-          res.sendStatus(502);
+          throw new Error("User not found. firebaseAuthID:" + firebaseAuthID);
         }
-      } else {
-        console.error("No User Found");
+      } catch (e) {
+        console.error(e);
         res.sendStatus(500);
       }
     } else {
@@ -106,6 +117,33 @@ class OrderController {
         res.json(order);
       } else {
         console.error("No Order found with the orderNumber: " + orderNumber);
+        res.sendStatus(500);
+      }
+    } else {
+      res.sendStatus(400);
+    }
+  }
+  async getOrders(req: Request, res: Response) {
+    const { pageNumber, pageSize, orderNumber, clientName } = req.body;
+    if (pageNumber && pageSize) {
+      try {
+        const orders = await new OrderRepository().getOrders(
+          pageNumber,
+          pageSize,
+          orderNumber,
+          clientName
+        );
+        const numberOfProducts = await new OrderRepository().getNumberOfOrders(
+          orderNumber,
+          clientName
+        );
+        const pageNumberLimit = Math.ceil(numberOfProducts / pageSize);
+        res.json({
+          orders,
+          pageNumberLimit,
+        });
+      } catch (e) {
+        console.error(e);
         res.sendStatus(500);
       }
     } else {

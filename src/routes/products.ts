@@ -25,5 +25,6 @@ router.post(
   productController.createProduct
 );
 router.post("/getProduct", productController.getProduct);
+router.post("/getProducts", checkIfAdmin, productController.getProducts);
 
 export default router;

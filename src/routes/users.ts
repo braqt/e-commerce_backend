@@ -14,7 +14,7 @@ router.post(
   "/getUser",
   //@ts-ignore
   checkIfAuthenticated,
-  userController.getUserByFirebaseAuthID
+  userController.getUser
 );
 
 export default router;

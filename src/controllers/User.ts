@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 
 import { User } from "../interfaces/User";
 import UserRepository from "../repositories/UserRepository";
@@ -20,32 +20,47 @@ class UserController {
         emailVerified: false,
         isAdmin: false,
       };
-
-      await new UserRepository().create(user);
-      res.sendStatus(200);
+      try {
+        await new UserRepository().create(user);
+        res.sendStatus(200);
+      } catch (e) {
+        console.error(e);
+        res.sendStatus(500);
+      }
     } else {
       res.sendStatus(400);
     }
   }
 
-  async setUserAsAdmin(req: IGetAuthTokenRequest, res: Response) {
+  async setUserAsAdmin(req: Request, res: Response) {
     const { userAuthID } = req.body;
-    const maxNumberOfAdminUsers = 4;
-    const numberOfAdminUsers =
-      await new UserRepository().getNumberOfAdminUsers();
+    if (userAuthID) {
+      try {
+        const maxNumberOfAdminUsers = 4;
+        const numberOfAdminUsers =
+          await new UserRepository().getNumberOfAdminUsers();
 
-    if (numberOfAdminUsers > 0 && numberOfAdminUsers <= maxNumberOfAdminUsers) {
-      await new UserRepository().setUserAsAdmin(userAuthID);
-      res.sendStatus(200);
+        if (
+          numberOfAdminUsers > 0 &&
+          numberOfAdminUsers <= maxNumberOfAdminUsers
+        ) {
+          await new UserRepository().setUserAsAdmin(userAuthID);
+          res.sendStatus(200);
+        } else {
+          throw new Error(
+            "Max number of admin users reached: " + maxNumberOfAdminUsers
+          );
+        }
+      } catch (e) {
+        console.error(e);
+        res.sendStatus(500);
+      }
     } else {
-      console.error(
-        "Max number of admin users reached: " + maxNumberOfAdminUsers
-      );
-      res.sendStatus(500);
+      res.sendStatus(400);
     }
   }
 
-  async getUserByFirebaseAuthID(req: IGetAuthTokenRequest, res: Response) {
+  async getUser(req: IGetAuthTokenRequest, res: Response) {
     const { authId } = req;
     try {
       const user = await new UserRepository().getUserByFirebaseAuthID(authId);

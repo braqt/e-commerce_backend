@@ -3,8 +3,8 @@ export interface Product {
   description: string;
   imagesUrl: string[];
   category: string;
-  price: string;
+  priceInCents: number;
   discountPercentage: number;
   quantity: number;
-  finalPrice: string;
+  finalPriceInCents: number;
 }

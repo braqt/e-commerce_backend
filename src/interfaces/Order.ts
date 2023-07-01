@@ -1,5 +1,4 @@
-import { Types, Document } from "mongoose";
-import { Product } from "./Product";
+import { Types } from "mongoose";
 import { User } from "./User";
 import { OrderState } from "./OrderState";
 import { PaymentMethod } from "./PaymentMethod";
@@ -7,9 +6,12 @@ import { PaymentState } from "./PaymentState";
 
 export interface Order {
   orderNumber: number;
-  total: string;
+  totalInCents: number;
   user: Types.ObjectId | User;
-  products: Types.ObjectId[] | Product[];
+  products: {
+    id: Types.ObjectId;
+    quantity: number;
+  }[];
   state: Types.ObjectId | OrderState;
   paymentMethod: Types.ObjectId | PaymentMethod;
   paymentState: Types.ObjectId | PaymentState;

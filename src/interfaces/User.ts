@@ -4,6 +4,7 @@ export interface User {
   phone: number;
   dni: number;
   email: string;
-  hashedAndSaltedPassword: string;
+  firebaseAuthID: string;
   emailVerified: boolean;
+  isAdmin: boolean;
 }

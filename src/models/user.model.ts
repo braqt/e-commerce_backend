@@ -9,7 +9,8 @@ const UserSchema = new Schema(
     phone: { type: String, required: true },
     dni: { type: Number, required: true },
     email: { type: String, required: true },
-    hashedAndSaltedPassword: { type: String, required: true },
+    firebaseAuthID: { type: String, required: true },
+    isAdmin: { type: Boolean, required: true },
     emailVerified: { type: Boolean, required: true },
   },
   { timestamps: true }

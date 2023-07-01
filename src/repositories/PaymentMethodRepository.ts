@@ -1,8 +1,8 @@
 import PaymentMethodModel from "../models/paymentMethod.model";
 
 class PaymentMethodRepository {
-  async get() {
-    return await PaymentMethodModel.find();
+  async getPaymentMethodByName(name: string) {
+    return await PaymentMethodModel.findOne({ name: name });
   }
 }
 

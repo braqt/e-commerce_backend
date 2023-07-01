@@ -1,10 +1,8 @@
-import { UpdateQuery } from "mongoose";
-
 import ProductModel from "../models/product.model";
 import { Product } from "../interfaces/Product";
 
 class ProductRepository {
-  async get(id: string) {
+  async getProductById(id: string) {
     return await ProductModel.findById(id);
   }
 
@@ -12,8 +10,15 @@ class ProductRepository {
     return await ProductModel.create(product);
   }
 
-  async update(id: string, query: UpdateQuery<Product>) {
-    return await ProductModel.findByIdAndUpdate(id, query, { new: true });
+  async reduceQuantity(id: string, numberToReduce: number) {
+    const product = await ProductModel.findById(id);
+    if (product) {
+      await ProductModel.findByIdAndUpdate(id, {
+        quantity: product.quantity - numberToReduce,
+      });
+    } else {
+      throw new Error("No product found with the _id: " + id);
+    }
   }
 }
 

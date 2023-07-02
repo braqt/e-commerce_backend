@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 
 import { User } from "../interfaces/User";
-import UserRepository from "../repositories/UserRepository";
 import { IGetAuthTokenRequest } from "../middlewares/auth";
+import UserRepository from "../repositories/UserRepository";
+import OrderRepository from "../repositories/OrderRepository";
 
 class UserController {
   async createUser(req: IGetAuthTokenRequest, res: Response) {
@@ -72,6 +73,67 @@ class UserController {
     } catch (e) {
       console.error(e);
       res.sendStatus(500);
+    }
+  }
+
+  async getActiveOrders(req: IGetAuthTokenRequest, res: Response) {
+    const { authId } = req;
+    const { pageNumber, pageSize } = req.body;
+
+    if (pageNumber && pageSize) {
+      try {
+        const user = await new UserRepository().getUserByFirebaseAuthID(authId);
+        if (user) {
+          const userId = user._id.toString();
+          const activeOrders = await new OrderRepository().getUserActiveOrders(
+            userId,
+            pageNumber,
+            pageSize
+          );
+          const numberOfActiveOrders =
+            await new OrderRepository().getNumberOfUserActiveOrders(userId);
+          let pageNumberLimit = Math.ceil(numberOfActiveOrders / pageSize);
+          res.json({ activeOrders, pageNumberLimit });
+        } else {
+          throw new Error("No user found with the firebaseAuthID " + authId);
+        }
+      } catch (e) {
+        console.error(e);
+        res.sendStatus(500);
+      }
+    } else {
+      res.status(400).send("Request needs the pageNumber or the pageSize");
+    }
+  }
+
+  async getInactiveOrders(req: IGetAuthTokenRequest, res: Response) {
+    const { authId } = req;
+    const { pageNumber, pageSize } = req.body;
+
+    if (pageNumber && pageSize) {
+      try {
+        const user = await new UserRepository().getUserByFirebaseAuthID(authId);
+        if (user) {
+          const userId = user._id.toString();
+          const inactiveOrders =
+            await new OrderRepository().getUserInactiveOrders(
+              userId,
+              pageNumber,
+              pageSize
+            );
+          const numberOfInactiveOrders =
+            await new OrderRepository().getNumberOfUserActiveOrders(userId);
+          let pageNumberLimit = Math.ceil(numberOfInactiveOrders / pageSize);
+          res.json({ inactiveOrders, pageNumberLimit });
+        } else {
+          throw new Error("No user found with the firebaseAuthID " + authId);
+        }
+      } catch (e) {
+        console.error(e);
+        res.sendStatus(500);
+      }
+    } else {
+      res.status(400).send("Request needs the pageNumber or the pageSize");
     }
   }
 }

@@ -16,5 +16,17 @@ router.post(
   checkIfAuthenticated,
   userController.getUser
 );
+router.post(
+  "/activeOrders",
+  //@ts-ignore
+  checkIfAuthenticated,
+  userController.getActiveOrders
+);
+router.post(
+  "/inactiveOrders",
+  //@ts-ignore
+  checkIfAuthenticated,
+  userController.getInactiveOrders
+);
 
 export default router;

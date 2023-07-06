@@ -110,11 +110,28 @@ class OrderController {
   async getOrder(req: Request, res: Response) {
     const { orderNumber } = req.query;
     if (orderNumber) {
-      const order = await new OrderRepository().getOrderByOrderNumber(
-        +orderNumber
-      );
+      const order =
+        await new OrderRepository().getOrderByOrderNumberWithSelectedValues(
+          +orderNumber
+        );
       if (order) {
-        res.json(order);
+        let products: any[] = [];
+        for (let p of order.products) {
+          products.push({
+            item: p.id,
+            quantity: p.quantity,
+          });
+        }
+        let orderResponse = {
+          orderNumber: order.orderNumber,
+          paymentMethod: order.paymentMethod.name,
+          paymentState: order.paymentState.name,
+          state: order.state.name,
+          totalInCents: order.totalInCents,
+          user: order.user,
+          products,
+        };
+        res.json(orderResponse);
       } else {
         console.error("No Order found with the orderNumber: " + orderNumber);
         res.sendStatus(500);
@@ -123,6 +140,7 @@ class OrderController {
       res.sendStatus(400);
     }
   }
+
   async getOrders(req: Request, res: Response) {
     const { pageNumber, pageSize, orderNumber, clientName } = req.body;
     if (pageNumber && pageSize) {
@@ -152,33 +170,74 @@ class OrderController {
   }
 
   async setOrderState(req: IGetAuthTokenRequest, res: Response) {
-    const { orderNumber, orderState } = req.body;
+    const { orderNumber, orderStateValue } = req.body;
     const firebaseAuthID = req.authId;
-    if (isOrderState(orderState)) {
-      const orderRepository = new OrderRepository();
-      const userDoc = await new UserRepository().getUserByFirebaseAuthID(
-        firebaseAuthID
-      );
-      if (userDoc) {
-        try {
-          const orderStatePrepared =
-            await new OrderStateRepository().getOrderStateByName(orderState);
-          if (orderStatePrepared) {
+    if (isOrderState(orderStateValue)) {
+      try {
+        const orderRepository = new OrderRepository();
+        const userDoc = await new UserRepository().getUserByFirebaseAuthID(
+          firebaseAuthID
+        );
+        if (userDoc) {
+          if (orderStateValue == OrderStateValue.COMPLETED) {
+            const order = await new OrderRepository().getOrderByOrderNumber(
+              orderNumber
+            );
+            if (order) {
+              const orderStatePrepared =
+                await new OrderStateRepository().getOrderStateByName(
+                  OrderStateValue.PREPARED
+                );
+              const paymentStatePayed =
+                await new PaymentStateRepository().getPaymentStateByName(
+                  PaymentStateValue.PAID
+                );
+              if (orderStatePrepared && paymentStatePayed) {
+                if (
+                  order.state.toString() != orderStatePrepared._id.toString() &&
+                  order.paymentState.toString() !=
+                    paymentStatePayed._id.toString()
+                ) {
+                  throw new Error(
+                    `The Order is not ${OrderStateValue.PREPARED} or ${PaymentStateValue.PAID}`
+                  );
+                }
+              } else {
+                throw new Error(
+                  `The Order State 
+                    ${OrderStateValue.PREPARED} or The Payment State 
+                    ${PaymentStateValue.PAID} 
+                    doesnt exists`
+                );
+              }
+            } else {
+              throw new Error(
+                "User not found with firebaseAuthID: " + firebaseAuthID
+              );
+            }
+          }
+          const orderState =
+            await new OrderStateRepository().getOrderStateByName(
+              orderStateValue
+            );
+          if (orderState) {
             await orderRepository.setOrderState(
               orderNumber,
-              orderStatePrepared._id.toString()
+              orderState._id.toString()
             );
             res.sendStatus(200);
           } else {
-            console.error("No Order State found with the name: " + orderState);
+            console.error(
+              "No Order State found with the name: " + orderStateValue
+            );
             res.sendStatus(500);
           }
-        } catch (e) {
-          console.error("Error updating Order: " + e);
+        } else {
+          console.error("No User found with the uid: " + firebaseAuthID);
           res.sendStatus(500);
         }
-      } else {
-        console.error("No User found with the uid: " + firebaseAuthID);
+      } catch (e) {
+        console.error("Error updating Order: " + e);
         res.sendStatus(500);
       }
     } else {
@@ -188,37 +247,37 @@ class OrderController {
   }
 
   async setPaymentState(req: IGetAuthTokenRequest, res: Response) {
-    const { orderNumber, paymentState } = req.body;
+    const { orderNumber, paymentStateValue } = req.body;
     const firebaseAuthID = req.authId;
-    if (isPaymentState(paymentState)) {
-      const orderRepository = new OrderRepository();
-      const userDoc = await new UserRepository().getUserByFirebaseAuthID(
-        firebaseAuthID
-      );
-      if (userDoc) {
-        try {
-          const paymentStatePaid =
+    if (isPaymentState(paymentStateValue)) {
+      try {
+        const orderRepository = new OrderRepository();
+        const userDoc = await new UserRepository().getUserByFirebaseAuthID(
+          firebaseAuthID
+        );
+        if (userDoc) {
+          const paymentState =
             await new PaymentStateRepository().getPaymentStateByName(
-              paymentState
+              paymentStateValue
             );
-          if (paymentStatePaid) {
+          if (paymentState) {
             await orderRepository.setPaymentState(
               orderNumber,
-              paymentStatePaid._id.toString()
+              paymentState._id.toString()
             );
             res.sendStatus(200);
           } else {
             console.error(
-              "No Order State found with the name: " + paymentState
+              "No Order State found with the name: " + paymentStateValue
             );
             res.sendStatus(500);
           }
-        } catch (e) {
-          console.error("Error updating Order: " + e);
+        } else {
+          console.error("No User found with the uid: " + firebaseAuthID);
           res.sendStatus(500);
         }
-      } else {
-        console.error("No User found with the uid: " + firebaseAuthID);
+      } catch (e) {
+        console.error("Error updating Order: " + e);
         res.sendStatus(500);
       }
     } else {

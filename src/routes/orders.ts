@@ -12,7 +12,9 @@ router.post("/createOrder", checkIfAuthenticated, orderController.createOrder);
 router.post("/setOrderState", checkIfAdmin, orderController.setOrderState);
 //@ts-ignore
 router.post("/setPaymentState", checkIfAdmin, orderController.setPaymentState);
-router.get("/getOrder", orderController.getOrder);
-router.post("/getOrders", orderController.getOrders);
+//@ts-ignore
+router.get("/getOrder", checkIfAdmin, orderController.getOrder);
+//@ts-ignore
+router.post("/getOrders", checkIfAdmin, orderController.getOrders);
 
 export default router;

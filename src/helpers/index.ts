@@ -37,6 +37,9 @@ export const isPaymentState = (value: string) => {
 };
 export const isOrderState = (value: string) => {
   return (
-    value == OrderStateValue.PREPARED || value == OrderStateValue.NOT_PREPARED
+    value == OrderStateValue.PREPARED ||
+    value == OrderStateValue.NOT_PREPARED ||
+    value == OrderStateValue.COMPLETED ||
+    value == OrderStateValue.NOT_COMPLETED
   );
 };

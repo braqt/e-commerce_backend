@@ -15,6 +15,22 @@ class OrderRepository {
     return await OrderModel.findOne({ orderNumber: orderNumber });
   }
 
+  async getOrderByOrderNumberWithSelectedValues(orderNumber: number) {
+    return await OrderModel.findOne({ orderNumber: orderNumber })
+      .populate(
+        "user",
+        "-_id name lastName phone dni email emailVerified createdAt"
+      )
+      .populate(
+        "products.id",
+        "-_id name imagesUrl category priceInCents discountPercentage quantity finalPriceInCents"
+      )
+      .populate("paymentState")
+      .populate("paymentMethod")
+      .populate("state")
+      .exec();
+  }
+
   async getOrders(
     pageNumber: number,
     pageSize: number,

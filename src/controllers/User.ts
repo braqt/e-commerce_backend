@@ -18,6 +18,10 @@ class UserController {
         dni,
         email,
         firebaseAuthID,
+        statistics: {
+          numberOfCompletedOrders: 0,
+          totalSpentInCents: 0,
+        },
         emailVerified: false,
         isAdmin: false,
       };

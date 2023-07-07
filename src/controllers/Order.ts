@@ -175,14 +175,15 @@ class OrderController {
     if (isOrderState(orderStateValue)) {
       try {
         const orderRepository = new OrderRepository();
+        const userRepository = new UserRepository();
         const userDoc = await new UserRepository().getUserByFirebaseAuthID(
           firebaseAuthID
         );
         if (userDoc) {
+          const order = await new OrderRepository().getOrderByOrderNumber(
+            orderNumber
+          );
           if (orderStateValue == OrderStateValue.COMPLETED) {
-            const order = await new OrderRepository().getOrderByOrderNumber(
-              orderNumber
-            );
             if (order) {
               const orderStatePrepared =
                 await new OrderStateRepository().getOrderStateByName(
@@ -225,6 +226,16 @@ class OrderController {
               orderNumber,
               orderState._id.toString()
             );
+            if (orderState.name == OrderStateValue.COMPLETED && order) {
+              await userRepository.updateUserStatistic(userDoc._id.toString(), {
+                lastOrderCompletedDate: new Date(),
+                numberOfCompletedOrders:
+                  userDoc.statistics.numberOfCompletedOrders + 1,
+                totalSpentInCents:
+                  userDoc.statistics.totalSpentInCents + order.totalInCents,
+              });
+            }
+
             res.sendStatus(200);
           } else {
             console.error(

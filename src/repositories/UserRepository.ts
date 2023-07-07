@@ -1,9 +1,9 @@
 import UserModel from "../models/user.model";
-import { User } from "../interfaces/User";
+import { User, UserStatistics } from "../interfaces/User";
 
 class UserRepository {
-  async create(product: User) {
-    return await UserModel.create(product);
+  async create(user: User) {
+    return await UserModel.create(user);
   }
 
   async getUserByFirebaseAuthID(firebaseAuthID: string) {
@@ -32,6 +32,12 @@ class UserRepository {
 
   async getNumberOfAdminUsers() {
     return UserModel.find({ isAdmin: true }).count();
+  }
+
+  async updateUserStatistic(userId: string, userStatistics: UserStatistics) {
+    return UserModel.findByIdAndUpdate(userId, {
+      statistics: userStatistics,
+    });
   }
 }
 

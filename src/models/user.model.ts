@@ -2,6 +2,12 @@ import { Schema, model } from "mongoose";
 
 import { User } from "../interfaces/User";
 
+const UserStatisticsSchema = new Schema({
+  totalSpentInCents: { type: Number, required: true },
+  numberOfCompletedOrders: { type: Number, required: true },
+  lastOrderCompletedDate: { type: Date },
+});
+
 const UserSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -10,6 +16,7 @@ const UserSchema = new Schema(
     dni: { type: Number, required: true },
     email: { type: String, required: true },
     firebaseAuthID: { type: String, required: true },
+    statistics: UserStatisticsSchema,
     isAdmin: { type: Boolean, required: true },
     emailVerified: { type: Boolean, required: true },
   },

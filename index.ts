@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import ProductsRoutes from "./src/routes/products";
 import OrderRoutes from "./src/routes/orders";
 import UserRoutes from "./src/routes/users";
+import AdminRoutes from "./src/routes/admin";
 import { initializeApp, cert } from "firebase-admin/app";
 
 const { PORT, MONGO_URI, CERT } = process.env;
@@ -27,5 +28,6 @@ initializeApp({
 app.use("/products", ProductsRoutes);
 app.use("/orders", OrderRoutes);
 app.use("/users", UserRoutes);
+app.use("/admin", AdminRoutes);
 
 app.listen(PORT, () => console.log("Listening on Port:", PORT));

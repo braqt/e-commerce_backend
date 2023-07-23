@@ -90,7 +90,7 @@ class ProductController {
           );
         let pageNumberLimit = Math.ceil(numberOfProducts / pageSize);
         res.json({
-          applicants: products,
+          products: products,
           pageNumberLimit,
         });
       } catch (e) {

@@ -4,7 +4,9 @@ import { FilterQuery } from "mongoose";
 
 class ProductRepository {
   async getProductById(id: string) {
-    return await ProductModel.findById(id);
+    return await ProductModel.findById(id).select(
+      "-_id -__v -createdAt -updatedAt"
+    );
   }
 
   async create(product: Product) {
@@ -36,6 +38,7 @@ class ProductRepository {
       query["category"] = category;
     }
     let products = await ProductModel.find(query)
+      .select("-__v -createdAt -updatedAt")
       .sort({ _id: -1 })
       .skip(pageSize * (pageNumber - 1))
       .limit(pageSize);

@@ -7,7 +7,9 @@ class UserRepository {
   }
 
   async getUserByFirebaseAuthID(firebaseAuthID: string) {
-    return await UserModel.findOne({ firebaseAuthID: firebaseAuthID });
+    return await UserModel.findOne({ firebaseAuthID: firebaseAuthID }).select(
+      "-updatedAt -statistics._id -__v"
+    );
   }
 
   async getUserByFirebaseAuthIDWithStatistics(firebaseAuthID: string) {

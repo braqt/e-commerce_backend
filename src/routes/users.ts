@@ -21,10 +21,16 @@ router.post(
   userController.getActiveOrders
 );
 router.post(
-  "/inactiveOrders",
+  "/completedOrders",
   //@ts-ignore
   checkIfAuthenticated,
-  userController.getInactiveOrders
+  userController.getCompletedOrders
+);
+router.post(
+  "/notCompletedOrders",
+  //@ts-ignore
+  checkIfAuthenticated,
+  userController.getNotCompletedOrders
 );
 
 export default router;

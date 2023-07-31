@@ -15,4 +15,5 @@ export interface Order {
   state: Types.ObjectId | OrderState;
   paymentMethod: Types.ObjectId | PaymentMethod;
   paymentState: Types.ObjectId | PaymentState;
+  createdAt?: string;
 }

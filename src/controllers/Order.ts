@@ -129,6 +129,7 @@ class OrderController {
           state: order.state.name,
           totalInCents: order.totalInCents,
           user: order.user,
+          createdAt: order.createdAt,
           products,
         };
         res.json(orderResponse);

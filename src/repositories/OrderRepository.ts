@@ -76,6 +76,10 @@ class OrderRepository {
           { state: orderStateNotPrepared._id },
         ],
       })
+        .populate("paymentState")
+        .populate("paymentMethod")
+        .populate("state")
+        .select("-_id -user -updatedAt -__v")
         .sort({ _id: -1 })
         .skip(pageSize * (pageNumber - 1))
         .limit(pageSize);
@@ -114,7 +118,7 @@ class OrderRepository {
     }
   }
 
-  async getUserInactiveOrders(
+  async getUserCompletedOrders(
     userId: string,
     pageNumber: number,
     pageSize: number
@@ -123,18 +127,45 @@ class OrderRepository {
       await new OrderStateRepository().getOrderStateByName(
         OrderStateValue.COMPLETED
       );
+    if (orderStateCompleted) {
+      let orders = await OrderModel.find({
+        user: new Types.ObjectId(userId),
+        state: orderStateCompleted._id,
+      })
+        .populate("paymentState")
+        .populate("paymentMethod")
+        .populate("state")
+        .select("-_id -user -updatedAt -__v")
+        .sort({ _id: -1 })
+        .skip(pageSize * (pageNumber - 1))
+        .limit(pageSize);
+
+      return orders;
+    } else {
+      throw new Error(
+        "OrderState Completed not found or/and OrderState Not Completed not found"
+      );
+    }
+  }
+
+  async getUserNotCompletedOrders(
+    userId: string,
+    pageNumber: number,
+    pageSize: number
+  ) {
     const orderStateNotCompleted =
       await new OrderStateRepository().getOrderStateByName(
         OrderStateValue.NOT_COMPLETED
       );
-    if (orderStateCompleted && orderStateNotCompleted) {
+    if (orderStateNotCompleted) {
       let orders = await OrderModel.find({
         user: new Types.ObjectId(userId),
-        $or: [
-          { state: orderStateCompleted._id },
-          { state: orderStateNotCompleted._id },
-        ],
+        state: orderStateNotCompleted._id,
       })
+        .populate("paymentState")
+        .populate("paymentMethod")
+        .populate("state")
+        .select("-_id -user -updatedAt -__v")
         .sort({ _id: -1 })
         .skip(pageSize * (pageNumber - 1))
         .limit(pageSize);

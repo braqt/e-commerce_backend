@@ -70,7 +70,14 @@ class UserController {
     try {
       const user = await new UserRepository().getUserByFirebaseAuthID(authId);
       if (user) {
-        res.json(user);
+        res.json({
+          name: user.name,
+          lastName: user.name,
+          phone: user.phone,
+          dni: user.dni,
+          email: user.email,
+          emailVerified: user.emailVerified,
+        });
       } else {
         throw new Error("No user found with the firebaseAuthID " + authId);
       }

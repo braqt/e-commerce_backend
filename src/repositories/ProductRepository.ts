@@ -32,13 +32,35 @@ class ProductRepository {
   ) {
     let query: FilterQuery<Product> = {};
     if (productName) {
-      query["name"] = { $regex: ".*" + productName + ".*" };
+      query["name"] = { $regex: ".*" + productName + ".*", $options: "i" };
     }
     if (category) {
       query["category"] = category;
     }
     let products = await ProductModel.find(query)
       .select("-__v -createdAt -updatedAt")
+      .sort({ _id: -1 })
+      .skip(pageSize * (pageNumber - 1))
+      .limit(pageSize);
+
+    return products;
+  }
+
+  async getAdminProducts(
+    pageNumber: number,
+    pageSize: number,
+    productName?: string,
+    category?: string
+  ) {
+    let query: FilterQuery<Product> = {};
+    if (productName) {
+      query["name"] = { $regex: ".*" + productName + ".*", $options: "i" };
+    }
+    if (category) {
+      query["category"] = category;
+    }
+    let products = await ProductModel.find(query)
+      .select("-__v -updatedAt")
       .sort({ _id: -1 })
       .skip(pageSize * (pageNumber - 1))
       .limit(pageSize);

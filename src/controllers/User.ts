@@ -69,7 +69,17 @@ class UserController {
     const { authId } = req;
     try {
       const user = await new UserRepository().getUserByFirebaseAuthID(authId);
-      if (user) {
+      if (user && user.isAdmin) {
+        res.json({
+          name: user.name,
+          lastName: user.name,
+          phone: user.phone,
+          dni: user.dni,
+          email: user.email,
+          emailVerified: user.emailVerified,
+          isAdmin: user.isAdmin,
+        });
+      } else if (user) {
         res.json({
           name: user.name,
           lastName: user.name,

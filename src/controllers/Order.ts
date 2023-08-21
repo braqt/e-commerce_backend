@@ -156,9 +156,22 @@ class OrderController {
           orderNumber,
           clientName
         );
+        const ordersResponse = [];
+        for (let i = 0; i < orders.length; i++) {
+          ordersResponse.push({
+            _id: orders[i]._id,
+            orderNumber: orders[i].orderNumber,
+            totalInCents: orders[i].totalInCents,
+            user: orders[i].user,
+            paymentMethod: orders[i].paymentMethod.name,
+            paymentState: orders[i].paymentState.name,
+            state: orders[i].state.name,
+            createdAt: orders[i].createdAt,
+          });
+        }
         const pageNumberLimit = Math.ceil(numberOfProducts / pageSize);
         res.json({
-          orders,
+          orders: ordersResponse,
           pageNumberLimit,
         });
       } catch (e) {

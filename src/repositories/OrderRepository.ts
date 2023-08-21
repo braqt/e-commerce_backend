@@ -48,6 +48,14 @@ class OrderRepository {
       }
     }
     let orders = await OrderModel.find(query)
+      .select("-products -updatedAt -__v")
+      .populate(
+        "user",
+        "-_id name lastName phone dni email emailVerified createdAt"
+      )
+      .populate("paymentState")
+      .populate("paymentMethod")
+      .populate("state")
       .sort({ _id: -1 })
       .skip(pageSize * (pageNumber - 1))
       .limit(pageSize);

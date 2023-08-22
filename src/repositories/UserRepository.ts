@@ -1,5 +1,6 @@
 import UserModel from "../models/user.model";
 import { User, UserStatistics } from "../interfaces/User";
+import { FilterQuery } from "mongoose";
 
 class UserRepository {
   async create(user: User) {
@@ -40,6 +41,44 @@ class UserRepository {
     return UserModel.findByIdAndUpdate(userId, {
       statistics: userStatistics,
     });
+  }
+
+  async getUsers(pageNumber: number, pageSize: number, name?: string) {
+    let query: FilterQuery<User> = {};
+
+    if (name) {
+      query = {
+        $or: [
+          { name: { $regex: name, $options: "i" } },
+          { lastName: { $regex: name, $options: "i" } },
+        ],
+      };
+    }
+
+    let users = await UserModel.find(query)
+      .select(
+        "-statistics._id -firebaseAuthID -isAdmin -emailVerified -__v -createdAt -updatedAt"
+      )
+      .sort({ _id: -1 })
+      .skip(pageSize * (pageNumber - 1))
+      .limit(pageSize);
+
+    return users;
+  }
+
+  async getNumberOfUsers(name?: string) {
+    let query: FilterQuery<User> = {};
+
+    if (name) {
+      query = {
+        $or: [
+          { name: { $regex: name, $options: "i" } },
+          { lastName: { $regex: name, $options: "i" } },
+        ],
+      };
+    }
+
+    return UserModel.find(query).count();
   }
 }
 

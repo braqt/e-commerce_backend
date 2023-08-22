@@ -263,6 +263,32 @@ class UserController {
       res.status(400).send("Request needs the pageNumber or the pageSize");
     }
   }
+
+  async getUsers(req: Request, res: Response) {
+    const { pageNumber, pageSize, userName } = req.body;
+    if (pageNumber && pageSize) {
+      try {
+        const users = await new UserRepository().getUsers(
+          pageNumber,
+          pageSize,
+          userName
+        );
+        const numberOfUsers = await new UserRepository().getNumberOfUsers(
+          userName
+        );
+        let pageNumberLimit = Math.ceil(numberOfUsers / pageSize);
+        res.json({
+          users,
+          pageNumberLimit,
+        });
+      } catch (e) {
+        console.error(e);
+        res.sendStatus(500);
+      }
+    } else {
+      res.status(400).send("Request needs the pageNumber or the pageSize");
+    }
+  }
 }
 
 export default UserController;

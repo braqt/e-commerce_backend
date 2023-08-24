@@ -243,6 +243,29 @@ class OrderRepository {
   async create(order: Order) {
     return await OrderModel.create(order);
   }
+
+  async getUserOrdersForAdmin(
+    pageNumber: number,
+    pageSize: number,
+    idUser: string
+  ) {
+    let orders = await OrderModel.find({ user: idUser })
+      .select("-products -updatedAt -__v")
+      .populate("paymentState")
+      .populate("paymentMethod")
+      .populate("state")
+      .sort({ _id: -1 })
+      .skip(pageSize * (pageNumber - 1))
+      .limit(pageSize);
+
+    return orders;
+  }
+
+  async getNumberOfUserOrdersForAdmin(idUser: string) {
+    let orders = await OrderModel.find({ user: idUser }).count();
+
+    return orders;
+  }
 }
 
 export default OrderRepository;

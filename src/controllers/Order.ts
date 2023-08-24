@@ -310,6 +310,42 @@ class OrderController {
       res.sendStatus(500);
     }
   }
+
+  async getUserOrders(req: Request, res: Response) {
+    const { pageNumber, pageSize, id } = req.body;
+    if (pageNumber && pageSize) {
+      try {
+        const orders = await new OrderRepository().getUserOrdersForAdmin(
+          pageNumber,
+          pageSize,
+          id
+        );
+        const numberOfOrders =
+          await new OrderRepository().getNumberOfUserOrdersForAdmin(id);
+        const ordersResponse = [];
+        for (let i = 0; i < orders.length; i++) {
+          ordersResponse.push({
+            orderNumber: orders[i].orderNumber,
+            totalInCents: orders[i].totalInCents,
+            paymentMethod: orders[i].paymentMethod.name,
+            paymentState: orders[i].paymentState.name,
+            state: orders[i].state.name,
+            createdAt: orders[i].createdAt,
+          });
+        }
+        const pageNumberLimit = Math.ceil(numberOfOrders / pageSize);
+        res.json({
+          orders: ordersResponse,
+          pageNumberLimit,
+        });
+      } catch (e) {
+        console.error(e);
+        res.sendStatus(500);
+      }
+    } else {
+      res.sendStatus(400);
+    }
+  }
 }
 
 export default OrderController;

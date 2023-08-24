@@ -7,6 +7,12 @@ class UserRepository {
     return await UserModel.create(user);
   }
 
+  async getUserByID(id: string) {
+    return await UserModel.findById(id).select(
+      "-_id -firebaseAuthID -statistics._id -isAdmin -updatedAt -__v"
+    );
+  }
+
   async getUserByFirebaseAuthID(firebaseAuthID: string) {
     return await UserModel.findOne({ firebaseAuthID: firebaseAuthID }).select(
       "-updatedAt -statistics._id -__v"

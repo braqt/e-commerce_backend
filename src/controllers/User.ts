@@ -289,6 +289,22 @@ class UserController {
       res.status(400).send("Request needs the pageNumber or the pageSize");
     }
   }
+
+  async getUserForAdmin(req: IGetAuthTokenRequest, res: Response) {
+    const { authId } = req;
+    const { id } = req.body;
+    try {
+      const user = await new UserRepository().getUserByID(id);
+      if (user) {
+        res.json(user);
+      } else {
+        throw new Error("No user found with the firebaseAuthID " + authId);
+      }
+    } catch (e) {
+      console.error(e);
+      res.sendStatus(500);
+    }
+  }
 }
 
 export default UserController;

@@ -49,10 +49,7 @@ class OrderRepository {
     }
     let orders = await OrderModel.find(query)
       .select("-products -updatedAt -__v")
-      .populate(
-        "user",
-        "-_id name lastName phone dni email emailVerified createdAt"
-      )
+      .populate("user", "name lastName phone dni email emailVerified createdAt")
       .populate("paymentState")
       .populate("paymentMethod")
       .populate("state")

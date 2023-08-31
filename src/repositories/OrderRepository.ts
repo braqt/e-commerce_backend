@@ -19,7 +19,7 @@ class OrderRepository {
     return await OrderModel.findOne({ orderNumber: orderNumber })
       .populate(
         "user",
-        "-_id name lastName phone dni email emailVerified createdAt"
+        "-_id name lastName phone dni email emailVerified statistics"
       )
       .populate(
         "products.id",

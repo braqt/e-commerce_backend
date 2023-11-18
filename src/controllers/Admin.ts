@@ -26,8 +26,9 @@ class AdminController {
         }
         const priceInCents = dollarsToCents(price);
         let imagesBuffer = files.map((file) => file.buffer);
-        let response = await staticFileServerService.uploadImages(imagesBuffer);
-        let imagesUrl = response.imagesUrl;
+        let imagesUrl = await staticFileServerService.uploadImages(
+          imagesBuffer
+        );
         let finalPriceInCents =
           priceInCents - (priceInCents * discountPercentage) / 100;
 

@@ -4,9 +4,7 @@ import { FilterQuery } from "mongoose";
 
 class ProductRepository {
   async getProductById(id: string) {
-    return await ProductModel.findById(id).select(
-      "-_id -__v -createdAt -updatedAt"
-    );
+    return await ProductModel.findById(id).select("-__v -createdAt -updatedAt");
   }
 
   async create(product: Product) {

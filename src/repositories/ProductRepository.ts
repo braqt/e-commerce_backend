@@ -25,15 +25,11 @@ class ProductRepository {
   async getProducts(
     pageNumber: number,
     pageSize: number,
-    productName?: string,
-    category?: string
+    productName?: string
   ) {
     let query: FilterQuery<Product> = {};
     if (productName) {
       query["name"] = { $regex: ".*" + productName + ".*", $options: "i" };
-    }
-    if (category) {
-      query["category"] = category;
     }
     let products = await ProductModel.find(query)
       .select("-__v -createdAt -updatedAt")
@@ -47,15 +43,11 @@ class ProductRepository {
   async getAdminProducts(
     pageNumber: number,
     pageSize: number,
-    productName?: string,
-    category?: string
+    productName?: string
   ) {
     let query: FilterQuery<Product> = {};
     if (productName) {
       query["name"] = { $regex: ".*" + productName + ".*", $options: "i" };
-    }
-    if (category) {
-      query["category"] = category;
     }
     let products = await ProductModel.find(query)
       .select("-__v -updatedAt")
@@ -66,13 +58,10 @@ class ProductRepository {
     return products;
   }
 
-  async getNumberOfProducts(productName?: string, category?: string) {
+  async getNumberOfProducts(productName?: string) {
     let query: FilterQuery<Product> = {};
     if (productName) {
       query["name"] = { $regex: ".*" + productName + ".*" };
-    }
-    if (category) {
-      query["category"] = category;
     }
     return await ProductModel.find(query).count();
   }

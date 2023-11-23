@@ -8,16 +8,8 @@ import StaticFileServerService from "../services/StaticFileServerService";
 
 class AdminController {
   async createProduct(req: IGetAuthTokenRequest, res: Response) {
-    const { name, description, category, price, discountPercentage, quantity } =
-      req.body;
-    if (
-      name &&
-      description &&
-      category &&
-      price &&
-      discountPercentage &&
-      quantity
-    ) {
+    const { name, description, price, discountPercentage, quantity } = req.body;
+    if (name && description && price && discountPercentage && quantity) {
       try {
         const files = req.files as Express.Multer.File[];
         const staticFileServerService = new StaticFileServerService();
@@ -36,7 +28,6 @@ class AdminController {
           name,
           description,
           imagesUrl,
-          category,
           priceInCents,
           discountPercentage: +discountPercentage,
           quantity: +quantity,
@@ -55,20 +46,16 @@ class AdminController {
   }
 
   async getProducts(req: Request, res: Response) {
-    const { pageNumber, pageSize, productName, category } = req.body;
+    const { pageNumber, pageSize, productName } = req.body;
     if (pageNumber && pageSize) {
       try {
         const products = await new ProductRepository().getAdminProducts(
           pageNumber,
           pageSize,
-          productName,
-          category
+          productName
         );
         const numberOfProducts =
-          await new ProductRepository().getNumberOfProducts(
-            productName,
-            category
-          );
+          await new ProductRepository().getNumberOfProducts(productName);
         let pageNumberLimit = Math.ceil(numberOfProducts / pageSize);
         res.json({
           products: products,

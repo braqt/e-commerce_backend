@@ -23,7 +23,7 @@ class OrderRepository {
       )
       .populate(
         "products.id",
-        "-_id name imagesUrl category priceInCents discountPercentage quantity finalPriceInCents"
+        "-_id name imagesUrl priceInCents discountPercentage quantity finalPriceInCents"
       )
       .populate("paymentState")
       .populate("paymentMethod")

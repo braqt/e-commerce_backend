@@ -24,20 +24,16 @@ class ProductController {
   }
 
   async getProducts(req: Request, res: Response) {
-    const { pageNumber, pageSize, productName, category } = req.body;
+    const { pageNumber, pageSize, productName } = req.body;
     if (pageNumber && pageSize) {
       try {
         const products = await new ProductRepository().getProducts(
           pageNumber,
           pageSize,
-          productName,
-          category
+          productName
         );
         const numberOfProducts =
-          await new ProductRepository().getNumberOfProducts(
-            productName,
-            category
-          );
+          await new ProductRepository().getNumberOfProducts(productName);
         let pageNumberLimit = Math.ceil(numberOfProducts / pageSize);
         res.json({
           products: products,

@@ -1,6 +1,8 @@
 import { Router } from "express";
 import multer, { memoryStorage } from "multer";
+
 import { checkIfAdmin } from "../../middlewares/auth";
+import { checkRateLimit } from "../../middlewares/rateLimit";
 import AdminController from "../../controllers/Admin";
 
 const router = Router();
@@ -20,14 +22,14 @@ const upload = multer({
 router.post(
   "/createProduct",
   //@ts-ignore
-  [upload.array("images"), checkIfAdmin],
+  [checkRateLimit, upload.array("images"), checkIfAdmin],
   adminController.createProduct
 );
 
 router.post(
   "/getProducts",
   //@ts-ignore
-  checkIfAdmin,
+  [checkRateLimit, checkIfAdmin],
   adminController.getProducts
 );
 

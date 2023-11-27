@@ -1,17 +1,37 @@
 import { Router } from "express";
-import OrderController from "../../controllers/Order";
+
 import { checkIfAdmin } from "../../middlewares/auth";
+import { checkRateLimit } from "../../middlewares/rateLimit";
+import OrderController from "../../controllers/Order";
 
 const router = Router();
 const orderController = new OrderController();
 
-//@ts-ignore
-router.post("/setOrderState", checkIfAdmin, orderController.setOrderState);
-//@ts-ignore
-router.post("/setPaymentState", checkIfAdmin, orderController.setPaymentState);
-//@ts-ignore
-router.get("/getOrder", checkIfAdmin, orderController.getOrder);
-//@ts-ignore
-router.post("/getOrders", checkIfAdmin, orderController.getOrders);
+router.post(
+  "/setOrderState",
+  //@ts-ignore
+  [checkRateLimit, checkIfAdmin],
+  orderController.setOrderState
+);
+
+router.post(
+  "/setPaymentState",
+  //@ts-ignore
+  [checkRateLimit, checkIfAdmin],
+  orderController.setPaymentState
+);
+
+router.get(
+  "/getOrder",
+  //@ts-ignore
+  [checkRateLimit, checkIfAdmin],
+  orderController.getOrder
+);
+router.post(
+  "/getOrders",
+  //@ts-ignore
+  [checkRateLimit, checkIfAdmin],
+  orderController.getOrders
+);
 
 export default router;

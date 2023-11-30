@@ -63,7 +63,7 @@ class UserRepository {
 
     let users = await UserModel.find(query)
       .select(
-        "-statistics._id -firebaseAuthID -isAdmin -emailVerified -__v -createdAt -updatedAt"
+        "-statistics._id -firebaseAuthID -isAdmin -__v -createdAt -updatedAt"
       )
       .sort({ _id: -1 })
       .skip(pageSize * (pageNumber - 1))

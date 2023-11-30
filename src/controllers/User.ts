@@ -22,7 +22,6 @@ class UserController {
           numberOfCompletedOrders: 0,
           totalSpentInCents: 0,
         },
-        emailVerified: false,
         isAdmin: false,
       };
       try {
@@ -72,21 +71,19 @@ class UserController {
       if (user && user.isAdmin) {
         res.json({
           name: user.name,
-          lastName: user.name,
+          lastName: user.lastName,
           phone: user.phone,
           dni: user.dni,
           email: user.email,
-          emailVerified: user.emailVerified,
           isAdmin: user.isAdmin,
         });
       } else if (user) {
         res.json({
           name: user.name,
-          lastName: user.name,
+          lastName: user.lastName,
           phone: user.phone,
           dni: user.dni,
           email: user.email,
-          emailVerified: user.emailVerified,
         });
       } else {
         throw new Error("No user found with the firebaseAuthID " + authId);

@@ -13,12 +13,11 @@ const UserSchema = new Schema(
     name: { type: String, required: true },
     lastName: { type: String, required: true },
     phone: { type: String, required: true },
-    dni: { type: Number, required: true },
+    dni: { type: String, required: true },
     email: { type: String, required: true },
     firebaseAuthID: { type: String, required: true },
     statistics: UserStatisticsSchema,
     isAdmin: { type: Boolean, required: true },
-    emailVerified: { type: Boolean, required: true },
   },
   { timestamps: true }
 );

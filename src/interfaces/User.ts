@@ -6,7 +6,6 @@ export interface User {
   email: string;
   firebaseAuthID: string;
   statistics: UserStatistics;
-  emailVerified: boolean;
   isAdmin: boolean;
 }
 

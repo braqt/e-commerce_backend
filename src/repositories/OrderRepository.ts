@@ -17,10 +17,7 @@ class OrderRepository {
 
   async getOrderByOrderNumberWithSelectedValues(orderNumber: number) {
     return await OrderModel.findOne({ orderNumber: orderNumber })
-      .populate(
-        "user",
-        "-_id name lastName phone dni email emailVerified statistics"
-      )
+      .populate("user", "-_id name lastName phone dni email statistics")
       .populate(
         "products.id",
         "-_id name imagesUrl priceInCents discountPercentage quantity finalPriceInCents"
@@ -49,7 +46,7 @@ class OrderRepository {
     }
     let orders = await OrderModel.find(query)
       .select("-products -updatedAt -__v")
-      .populate("user", "name lastName phone dni email emailVerified createdAt")
+      .populate("user", "name lastName phone dni email createdAt")
       .populate("paymentState")
       .populate("paymentMethod")
       .populate("state")

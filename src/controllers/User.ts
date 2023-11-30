@@ -6,11 +6,11 @@ import UserRepository from "../repositories/UserRepository";
 import OrderRepository from "../repositories/OrderRepository";
 
 class UserController {
-  async createUser(req: IGetAuthTokenRequest, res: Response) {
-    const { name, lastName, phone, dni, email } = req.body;
-    if (lastName && phone && dni && email) {
-      const firebaseAuthID = req.authId;
+  async createUser(req: Request, res: Response) {
+    const { name, lastName, phone, dni, email, firebaseAuthID, isAdmin } =
+      req.body;
 
+    if (name && lastName && phone && dni && email && firebaseAuthID) {
       const user: User = {
         name,
         lastName,
@@ -24,6 +24,9 @@ class UserController {
         },
         isAdmin: false,
       };
+      if (isAdmin === true) {
+        user.isAdmin = true;
+      }
       try {
         await new UserRepository().create(user);
         res.sendStatus(200);

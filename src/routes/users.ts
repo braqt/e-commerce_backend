@@ -10,7 +10,7 @@ const userController = new UserController();
 router.post(
   "/createUser",
   //@ts-ignore
-  [checkRateLimit, checkIfAuthenticated],
+  checkRateLimit,
   userController.createUser
 );
 router.post(

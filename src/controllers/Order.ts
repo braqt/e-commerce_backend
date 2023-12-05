@@ -1,5 +1,6 @@
 //@ts-nocheck
 import { Request, Response } from "express";
+import { Types } from "mongoose";
 
 import { Order } from "../interfaces/Order";
 import OrderRepository from "../repositories/OrderRepository";
